@@ -41,7 +41,6 @@ void calAparametrehm(int city, int fc, double hm, double *aparametre, double *co
 // Definir tamaño de la ventana
 #define WIDTH 400
 #define HEIGHT 300
-
 // Prototipo de la función de la ventana
 LRESULT CALLBACK WindowProcedure(HWND, UINT, WPARAM, LPARAM);
 
@@ -49,6 +48,16 @@ LRESULT CALLBACK WindowProcedure(HWND, UINT, WPARAM, LPARAM);
 HWND hDistancia, hFreq, hHb, hHm, hComboBox, hBotonCalcular, hSalida;
 
 int city = 1; // Variable para almacenar el valor de la ciudad seleccionada
+
+// Límites para las condiciones
+#define MIN_FC 150
+#define MAX_FC 1500
+#define MIN_HB 30
+#define MAX_HB 200
+#define MIN_HM 1
+#define MAX_HM 10
+#define MIN_D 1
+#define MAX_D 20
 
 int WINAPI WinMain(HINSTANCE hInstanciaActual, HINSTANCE hInstanciaPrevia, LPSTR lpCmdLinea, int nCmdShow) {
     // Estructura de la ventana
@@ -130,10 +139,37 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
             double hb = atof(hbStr);
             double hm = atof(hmStr);
 
-            // Verificar si la frecuencia es mayor a 2000 MHz
-            if (fc > 2000) {
-                MessageBox(hwnd, "La frecuencia ingresada excede los 2000 MHz.", "Error de frecuencia", MB_OK | MB_ICONERROR);
-                break;
+            // Validar los rangos y ajustar valores si es necesario
+            if (fc < MIN_FC) {
+                fc = MIN_FC;
+                MessageBox(hwnd, "Frecuencia ajustada al mínimo (150 MHz).", "Advertencia", MB_OK | MB_ICONWARNING);
+            } else if (fc > MAX_FC) {
+                fc = MAX_FC;
+                MessageBox(hwnd, "Frecuencia ajustada al máximo (1500 MHz).", "Advertencia", MB_OK | MB_ICONWARNING);
+            }
+
+            if (hb < MIN_HB) {
+                hb = MIN_HB;
+                MessageBox(hwnd, "Altura de antena BS (Hb) ajustada al mínimo (30 m).", "Advertencia", MB_OK | MB_ICONWARNING);
+            } else if (hb > MAX_HB) {
+                hb = MAX_HB;
+                MessageBox(hwnd, "Altura de antena BS (Hb) ajustada al máximo (200 m).", "Advertencia", MB_OK | MB_ICONWARNING);
+            }
+
+            if (hm < MIN_HM) {
+                hm = MIN_HM;
+                MessageBox(hwnd, "Altura de antena MS (Hm) ajustada al mínimo (1 m).", "Advertencia", MB_OK | MB_ICONWARNING);
+            } else if (hm > MAX_HM) {
+                hm = MAX_HM;
+                MessageBox(hwnd, "Altura de antena MS (Hm) ajustada al máximo (10 m).", "Advertencia", MB_OK | MB_ICONWARNING);
+            }
+
+            if (D < MIN_D) {
+                D = MIN_D;
+                MessageBox(hwnd, "Distancia ajustada al mínimo (1 km).", "Advertencia", MB_OK | MB_ICONWARNING);
+            } else if (D > MAX_D) {
+                D = MAX_D;
+                MessageBox(hwnd, "Distancia ajustada al máximo (20 km).", "Advertencia", MB_OK | MB_ICONWARNING);
             }
 
             // Obtener la selección del ComboBox
