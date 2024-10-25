@@ -5,7 +5,7 @@
 #define multipler 1000000
 #define M 1000
 void calAparametrehm(int city, int fc, double hm, double *aparametre, double *consC) {
-  if (fc < 2000 * multipler) {
+  if (fc < 2000) {
     switch (city) {
     case 2: // Case for small and medium size city
       *aparametre = ((1.1 * log10(fc) - 0.7) * hm) - (1.56 * log10(fc) - .8);
@@ -46,26 +46,27 @@ void calAparametrehm(int city, int fc, double hm, double *aparametre, double *co
 LRESULT CALLBACK WindowProcedure(HWND, UINT, WPARAM, LPARAM);
 
 // Variables globales para los controles
-HWND hDistancia, hFreq, hHb, hHm, hBotonCalcular, hSalida;
+HWND hDistancia, hFreq, hHb, hHm, hComboBox, hBotonCalcular, hSalida;
 
-int WINAPI WinMain(HINSTANCE hInstanciaActual, HINSTANCE hInstanciaPrevia, LPSTR lpCmdLinea, int nCmdShow){
+int city = 1; // Variable para almacenar el valor de la ciudad seleccionada
 
+int WINAPI WinMain(HINSTANCE hInstanciaActual, HINSTANCE hInstanciaPrevia, LPSTR lpCmdLinea, int nCmdShow) {
     // Estructura de la ventana
-    WNDCLASSW wc = {0};
-    wc.hbrBackground = (HBRUSH) COLOR_WINDOW;
+    WNDCLASSA wc = {0};  // Cambiado a WNDCLASSA
+    wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hInstance = hInstanciaActual;
-    wc.lpszClassName = L"VentanaPrincipal";
+    wc.lpszClassName = "VentanaPrincipal";  // Cambiado a string ANSI
     wc.lpfnWndProc = WindowProcedure;
 
     // Registro de la ventana
-    if (!RegisterClassW(&wc)) {
+    if (!RegisterClassA(&wc)) {  // Cambiado a RegisterClassA
         return -1;
     }
 
     // Crear la ventana con el nuevo tamaño
-    CreateWindowW(L"VentanaPrincipal", L"Modelo Otaku Mejorado", WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-                  100, 100, WIDTH, HEIGHT, NULL, NULL, hInstanciaActual, NULL);
+    CreateWindowA("VentanaPrincipal", "Modelo Otaku Mejorado", WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+                  100, 100, WIDTH, HEIGHT, NULL, NULL, hInstanciaActual, NULL);  // Cambiado a CreateWindowA
 
     // Ejecutar el loop principal de mensajes
     MSG msg = {0};
@@ -84,27 +85,38 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
     switch (msg) {
     case WM_CREATE:
         // Ajustes en las posiciones y tamaños de los controles
-        CreateWindowW(L"Static", L"Distancia (Km):", WS_VISIBLE | WS_CHILD, 100, 50, 150, 25, hwnd, NULL, NULL, NULL);
-        hDistancia = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 250, 50, 200, 25, hwnd, NULL, NULL, NULL);
+        CreateWindowA("Static", "Distancia (Km):", WS_VISIBLE | WS_CHILD, 100, 50, 150, 25, hwnd, NULL, NULL, NULL);
+        hDistancia = CreateWindowA("Edit", "", WS_VISIBLE | WS_CHILD | WS_BORDER, 250, 50, 200, 25, hwnd, NULL, NULL, NULL);
 
-        CreateWindowW(L"Static", L"Frecuencia (Mhz):", WS_VISIBLE | WS_CHILD, 100, 100, 150, 25, hwnd, NULL, NULL, NULL);
-        hFreq = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 250, 100, 200, 25, hwnd, NULL, NULL, NULL);
+        CreateWindowA("Static", "Frecuencia (Mhz):", WS_VISIBLE | WS_CHILD, 100, 100, 150, 25, hwnd, NULL, NULL, NULL);
+        hFreq = CreateWindowA("Edit", "", WS_VISIBLE | WS_CHILD | WS_BORDER, 250, 100, 200, 25, hwnd, NULL, NULL, NULL);
 
-        CreateWindowW(L"Static", L"Hb (m):", WS_VISIBLE | WS_CHILD, 100, 150, 150, 25, hwnd, NULL, NULL, NULL);
-        hHb = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 250, 150, 200, 25, hwnd, NULL, NULL, NULL);
+        CreateWindowA("Static", "Hb (m):", WS_VISIBLE | WS_CHILD, 100, 150, 150, 25, hwnd, NULL, NULL, NULL);
+        hHb = CreateWindowA("Edit", "", WS_VISIBLE | WS_CHILD | WS_BORDER, 250, 150, 200, 25, hwnd, NULL, NULL, NULL);
 
-        CreateWindowW(L"Static", L"Hm (m):", WS_VISIBLE | WS_CHILD, 100, 200, 150, 25, hwnd, NULL, NULL, NULL);
-        hHm = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 250, 200, 200, 25, hwnd, NULL, NULL, NULL);
+        CreateWindowA("Static", "Hm (m):", WS_VISIBLE | WS_CHILD, 100, 200, 150, 25, hwnd, NULL, NULL, NULL);
+        hHm = CreateWindowA("Edit", "", WS_VISIBLE | WS_CHILD | WS_BORDER, 250, 200, 200, 25, hwnd, NULL, NULL, NULL);
+
+        // Añadir ComboBox (menú desplegable) para seleccionar el tipo de entorno
+        CreateWindowA("Static", "Selecciona el entorno:", WS_VISIBLE | WS_CHILD, 100, 250, 150, 25, hwnd, NULL, NULL, NULL);
+        hComboBox = CreateWindowA("ComboBox", "", WS_VISIBLE | WS_CHILD | CBS_DROPDOWNLIST, 250, 250, 200, 100, hwnd, NULL, NULL, NULL);
+
+        // Añadir las opciones al ComboBox
+        SendMessage(hComboBox, CB_ADDSTRING, 0, (LPARAM)"Área metropolitana");
+        SendMessage(hComboBox, CB_ADDSTRING, 0, (LPARAM)"Ciudad pequeña y mediana");
+        SendMessage(hComboBox, CB_ADDSTRING, 0, (LPARAM)"Entorno suburbano");
+        SendMessage(hComboBox, CB_ADDSTRING, 0, (LPARAM)"Área rural");
+        SendMessage(hComboBox, CB_SETCURSEL, 0, 0);  // Selección por defecto
 
         // Botón para calcular con ajuste de tamaño y posición
-        hBotonCalcular = CreateWindowW(L"Button", L"Calcular", WS_VISIBLE | WS_CHILD, 200, 250, 100, 35, hwnd, (HMENU)1, NULL, NULL);
+        hBotonCalcular = CreateWindowA("Button", "Calcular", WS_VISIBLE | WS_CHILD, 200, 300, 100, 35, hwnd, (HMENU)1, NULL, NULL);
 
         // Área de salida para mostrar el resultado
-        hSalida = CreateWindowW(L"Static", L"", WS_VISIBLE | WS_CHILD, 50, 300, 400, 50, hwnd, NULL, NULL, NULL);
+        hSalida = CreateWindowA("Static", "", WS_VISIBLE | WS_CHILD, 50, 350, 400, 50, hwnd, NULL, NULL, NULL);
         break;
 
     case WM_COMMAND:
-        // Si se presiona el botón
+        // Si se presiona el botón de "Calcular"
         if (LOWORD(wp) == 1) {
             char distanciaStr[10], freqStr[10], hbStr[10], hmStr[10];
             GetWindowText(hDistancia, distanciaStr, 10);
@@ -118,11 +130,34 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
             double hb = atof(hbStr);
             double hm = atof(hmStr);
 
+            // Verificar si la frecuencia es mayor a 2000 MHz
+            if (fc > 2000) {
+                MessageBox(hwnd, "La frecuencia ingresada excede los 2000 MHz.", "Error de frecuencia", MB_OK | MB_ICONERROR);
+                break;
+            }
+
+            // Obtener la selección del ComboBox
+            int selectedIndex = SendMessage(hComboBox, CB_GETCURSEL, 0, 0);
+            switch (selectedIndex) {
+                case 0:
+                    city = 2;  // Área metropolitana
+                    break;
+                case 1:
+                    city = 1;  // Ciudad pequeña y mediana
+                    break;
+                case 2:
+                    city = 3;  // Entorno suburbano
+                    break;
+                case 3:
+                    city = 4;  // Área rural
+                    break;
+            }
+
             // Variables de cálculo
             double aparametre = 0, consC = 0, A = 0, B = 0, modelOtaku = 0;
 
-            // Llamar a la función de cálculo
-            calAparametrehm(1, fc, hm, &aparametre, &consC);  // Ejemplo con ciudad 1
+            // Llamar a la función de cálculo con la selección de ciudad
+            calAparametrehm(city, fc, hm, &aparametre, &consC);
             A = 69.55 + 26.16 * log10(fc) - 13.82 * log10(hb) - aparametre;
             B = 44.9 - 6.55 * log10(hb);
             modelOtaku = A + (B * log10(D)) + consC;
